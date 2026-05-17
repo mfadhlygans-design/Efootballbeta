@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Download eFootball Beta 2026 - Game Download Hub</title>
     <style>
+        /* Seluruh CSS Anda yang sebelumnya, tetap sama */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
         body {
@@ -77,6 +78,11 @@
         .legal-footer { text-align: center; font-size: 12px; color: #6a7c94; margin-top: 24px; }
         .legal-footer a { color: #7b8dff; text-decoration: none; }
         .legal-footer a:hover { text-decoration: underline; }
+        /* Loading */
+        .loading-spinner {
+            display: flex; justify-content: center; align-items: center; height: 100vh; color: white;
+            font-size: 18px; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        }
         @media (max-width: 500px) {
             .download-card { padding: 30px 20px; border-radius: 28px; }
             .game-title { font-size: 28px; }
@@ -87,6 +93,7 @@
 </head>
 <body>
 
+    <!-- Partikel latar -->
     <div class="bg-particles">
         <div class="particle">&#x26BD;</div>
         <div class="particle">&#x1F945;</div>
@@ -98,7 +105,13 @@
         <div class="particle">&#x2728;</div>
     </div>
 
-    <div class="download-wrapper" id="downloadContent">
+    <!-- Loading indicator (sebelum auth siap) -->
+    <div id="loadingScreen" class="loading-spinner">
+        Memeriksa sesi...
+    </div>
+
+    <!-- Konten Download (awalnya disembunyikan) -->
+    <div class="download-wrapper" id="downloadContent" style="display: none;">
         <div class="download-card">
             <div class="logo-area">
                 <span>GAME<span style="color:#7b8dff;">HUB</span></span>
@@ -155,10 +168,18 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Cek status login
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                // Jika belum login, langsung arahkan ke login.html
+        // Tunggu status auth siap, baru proses redirect
+        auth.authStateReady().then(() => {
+            // Sekarang status sudah benar, sembunyikan loading
+            document.getElementById('loadingScreen').style.display = 'none';
+
+            // Cek user
+            const user = auth.currentUser;
+            if (user) {
+                // Sudah login, tampilkan konten
+                document.getElementById('downloadContent').style.display = 'block';
+            } else {
+                // Belum login, redirect ke halaman login
                 window.location.href = 'login.html';
             }
         });
